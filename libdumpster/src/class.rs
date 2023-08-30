@@ -1,9 +1,9 @@
 use super::*;
-use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub enum Pipe {
-    PipeOp(Rc<dyn Operation>),
+    PipeOp(Arc<dyn Operation + Send + Sync>),
     StorePipeOp(String),
 }
 
@@ -21,8 +21,8 @@ impl Class {
         }
     }
 
-    pub fn op(mut self, operation: impl Operation + 'static) -> Self {
-        self.operations.push(Pipe::PipeOp(Rc::new(operation)));
+    pub fn op(mut self, operation: Arc<dyn Operation + Send + Sync>) -> Self {
+        self.operations.push(Pipe::PipeOp(operation));
         self
     }
 

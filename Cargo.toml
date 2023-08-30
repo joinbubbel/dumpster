@@ -1,5 +1,6 @@
 [workspace]
 members = [
-    "dumpster-axum",
     "libdumpster",
+    "dumpster-axum",
+    "dumpster-example",
 ]

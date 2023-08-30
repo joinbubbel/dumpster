@@ -18,9 +18,7 @@ where
 {
     pub async fn new(fs: FS, classes: &[Class]) -> Self {
         for class in classes {
-            fs.register_class(&class.name)
-                .await
-                .expect("Failed to register class.");
+            let _ = fs.register_class(&class.name).await;
         }
 
         Self {
@@ -33,11 +31,7 @@ where
         }
     }
 
-    pub async fn incoming(
-        &self,
-        class: &str,
-        mut data: Vec<u8>,
-    ) -> Option<String> {
+    pub async fn incoming(&self, class: &str, mut data: Vec<u8>) -> Option<String> {
         let class = self.classes.get(class).expect("That class does not exist.");
 
         let object_token = generate_token_alphanumeric(OBJECT_TOKEN_LENGTH);

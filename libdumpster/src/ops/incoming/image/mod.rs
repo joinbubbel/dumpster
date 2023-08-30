@@ -2,7 +2,7 @@ use super::*;
 use ::image::{io::Reader, DynamicImage};
 use std::io::Cursor;
 
-pub use ::image::{imageops::FilterType, ImageFormat};
+pub use ::image::ImageFormat;
 
 pub struct ImageOperation {
     steps: Vec<ImageOperationStep>,
@@ -48,14 +48,14 @@ impl Operation for ImageOperation {
 }
 
 pub enum ImageOperationStep {
-    Resize(u32, u32, FilterType),
+    Resize(u32, u32),
     Blur(f32),
 }
 
 impl ImageOperationStep {
     pub fn run(&self, image: &mut DynamicImage) -> Option<()> {
         *image = match self {
-            ImageOperationStep::Resize(width, height, filter) => image.resize(*width, *height, *filter),
+            ImageOperationStep::Resize(width, height) => image.thumbnail(*width, *height),
             ImageOperationStep::Blur(sigma) => image.blur(*sigma),
         };
 

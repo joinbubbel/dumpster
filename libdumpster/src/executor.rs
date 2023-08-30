@@ -38,7 +38,7 @@ where
         class: &str,
         data_name: &str,
         mut data: Vec<u8>,
-    ) -> Option<(String, Vec<String>)> {
+    ) -> Option<String> {
         let class = self.classes.get(class).expect("That class does not exist.");
 
         let object_token = generate_token_alphanumeric(OBJECT_TOKEN_LENGTH);
@@ -46,8 +46,6 @@ where
             .new_object(&class.name, &object_token)
             .await
             .expect("Failed to create new object.");
-
-        let mut output_datas = vec![];
 
         for op in class.operations.iter() {
             match op {
@@ -59,12 +57,11 @@ where
                         .store(&class.name, &object_token, output_name, &data)
                         .await
                         .expect("Failed to store data.");
-                    output_datas.push(output_name.to_owned());
                 }
             }
         }
 
-        Some((object_token, output_datas))
+        Some(object_token)
     }
 
     pub async fn outgoing(&self, class: &str, object_name: &str, data_name: &str) -> Vec<u8> {

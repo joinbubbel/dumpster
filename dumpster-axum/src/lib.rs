@@ -3,26 +3,27 @@ use axum::{
     routing::{get, post},
     Router,
 };
+use b64::FromBase64;
 use libdumpster::{Executor, FileSystem};
-use std::{
-    net::SocketAddr,
-    sync::{Arc, Mutex},
-};
+use std::{net::SocketAddr, sync::Arc};
+
+mod api;
+
+pub use api::*;
 
 struct OurState<FS: FileSystem + Send + Sync> {
-    exec: Mutex<Executor<FS>>,
+    exec: Executor<FS>,
 }
 
 pub async fn run_with_axum<FS>(exec: Executor<FS>, addr: SocketAddr)
 where
     FS: FileSystem + Send + Sync + 'static,
 {
-    let state = Arc::new(OurState {
-        exec: Mutex::new(exec),
-    });
+    let state = Arc::new(OurState { exec });
 
     let app = Router::new()
         .route("/", get(get_hello_world))
+        .route("/upload_base64", post(api_upload_base64))
         .with_state(Arc::clone(&state));
 
     axum::Server::bind(&addr)
@@ -35,3 +36,25 @@ async fn get_hello_world() -> &'static str {
     "Hello, World"
 }
 
+async fn api_upload_base64<FS: FileSystem + Send + Sync>(
+    State(state): State<Arc<OurState<FS>>>,
+    Json(req): Json<InUpload>,
+) -> Json<ResUpload> {
+    let Ok(data) = req.base64_data.from_base64() else {
+        return Json(ResUpload {
+            object_name: None,
+            error: Some(ResError::InvalidBase64),
+        });
+    };
+    let Some(object_name) = state.exec.incoming(&req.class_name, "", data).await else {
+        return Json(ResUpload {
+            object_name: None,
+            error: Some(ResError::DataRejected),
+        });
+    };
+
+    Json(ResUpload {
+        object_name: Some(object_name),
+        error: None,
+    })
+}

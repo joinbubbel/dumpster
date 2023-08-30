@@ -63,24 +63,6 @@ where
 
         Some(object_token)
     }
-
-    pub async fn outgoing(&self, class: &str, object_name: &str, data_name: &str) -> Vec<u8> {
-        let class = self.classes.get(class).expect("That class does not exist.");
-
-        let mut data = self
-            .fs
-            .load(&class.name, object_name, data_name)
-            .await
-            .expect("Failed to load data.");
-
-        for op in class.operations.iter().rev() {
-            if let Pipe::PipeOp(op) = op {
-                data = op.outgoing(data).expect("Corrupt outgoing data.");
-            }
-        }
-
-        data
-    }
 }
 
 /// Securely generate a random alphanumeric string of length `length`.

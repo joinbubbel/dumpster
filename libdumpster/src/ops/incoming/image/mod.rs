@@ -45,10 +45,6 @@ impl Operation for ImageOperation {
         image.write_to(&mut buffer, self.output_format).ok()?;
         Some(buffer.into_inner())
     }
-
-    fn outgoing(&self, bytes: Vec<u8>) -> Option<Vec<u8>> {
-        Some(bytes)
-    }
 }
 
 pub enum ImageOperationStep {

@@ -19,5 +19,4 @@ pub use incoming::*;
 
 pub trait Operation {
     fn incoming(&self, data_name: &str, bytes: Vec<u8>) -> Option<Vec<u8>>;
-    fn outgoing(&self, bytes: Vec<u8>) -> Option<Vec<u8>>;
 }

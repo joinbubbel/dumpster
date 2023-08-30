@@ -7,8 +7,9 @@ mod ops;
 mod tests;
 
 pub use class::{Class, Pipe};
+pub use executor::Executor;
 pub use fs::{mock_fs, tokio_fs, FileSystem, FileSystemError};
-pub use ops::{Operation, OperationIncoming, OperationOutgoing};
+pub use ops::*;
 
 //  TODO Proper error handling.
 //  TODO Operation params.

@@ -1,9 +1,10 @@
 use super::*;
+use std::rc::Rc;
 
 #[derive(Clone)]
 pub enum Pipe {
-    PipeOp(Operation),
-    StorePipeOp(String, Operation),
+    PipeOp(Rc<dyn Operation>),
+    StorePipeOp(String),
 }
 
 #[derive(Clone)]
@@ -20,19 +21,19 @@ impl Class {
         }
     }
 
-    pub fn op(mut self, operation: Operation) -> Self {
-        self.operations.push(Pipe::PipeOp(operation));
+    pub fn op(mut self, operation: impl Operation + 'static) -> Self {
+        self.operations.push(Pipe::PipeOp(Rc::new(operation)));
         self
     }
 
-    pub fn store(mut self, store_name: &str, operation: Operation) -> Self {
+    pub fn store(mut self, store_name: &str) -> Self {
         self.operations
-            .push(Pipe::StorePipeOp(store_name.to_owned(), operation));
+            .push(Pipe::StorePipeOp(store_name.to_owned()));
         self
     }
 
     /// This serves no purpose other than to signify that you are done building.
-    pub fn build(self) -> Class {
+    pub fn build(self) -> Self {
         self
     }
 }

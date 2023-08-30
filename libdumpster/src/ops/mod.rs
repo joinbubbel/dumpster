@@ -12,16 +12,12 @@
 //! Store => "{name}.webm"
 //! ```
 //!
-#[derive(Debug, Clone)]
-pub struct Operation {
-    pub incoming: OperationIncoming,
-    pub outgoing: OperationOutgoing,
-}
 
-pub type OperationIncoming = fn(&str, bytes: Vec<u8>) -> Option<Vec<u8>>;
-pub type OperationOutgoing = fn(bytes: Vec<u8>) -> Option<Vec<u8>>;
+mod incoming;
 
-#[inline]
-pub fn no_op(bytes: Vec<u8>) -> Option<Vec<u8>> {
-    Some(bytes)
+pub use incoming::*;
+
+pub trait Operation {
+    fn incoming(&self, data_name: &str, bytes: Vec<u8>) -> Option<Vec<u8>>;
+    fn outgoing(&self, bytes: Vec<u8>) -> Option<Vec<u8>>;
 }

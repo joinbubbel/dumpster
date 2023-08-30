@@ -52,10 +52,9 @@ where
         for op in class.operations.iter() {
             match op {
                 Pipe::PipeOp(op) => {
-                    data = (op.incoming)(data_name, data)?;
+                    data = op.incoming(data_name, data)?;
                 }
-                Pipe::StorePipeOp(output_name, op) => {
-                    data = (op.incoming)(data_name, data)?;
+                Pipe::StorePipeOp(output_name) => {
                     self.fs
                         .store(&class.name, &object_token, output_name, &data)
                         .await
@@ -78,10 +77,8 @@ where
             .expect("Failed to load data.");
 
         for op in class.operations.iter().rev() {
-            match op {
-                Pipe::PipeOp(op) | Pipe::StorePipeOp(_, op) => {
-                    data = (op.outgoing)(data).expect("Corrupt outgoing data.");
-                }
+            if let Pipe::PipeOp(op) = op {
+                data = op.outgoing(data).expect("Corrupt outgoing data.");
             }
         }
 
@@ -90,7 +87,7 @@ where
 }
 
 /// Securely generate a random alphanumeric string of length `length`.
-pub fn generate_token_alphanumeric(length: usize) -> String {
+fn generate_token_alphanumeric(length: usize) -> String {
     OsRng
         .sample_iter(&Alphanumeric)
         .take(length)

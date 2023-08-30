@@ -5,9 +5,14 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = ["net"]
+net = ["dep:b64", "dep:axum", "dep:tower-http", "dep:libdumpster"]
+
 [dependencies]
-b64 = "0.4"
-axum = "0.6"
 serde = { version = "1", features = ["derive"] }
-tower-http = { version = "0.4", features = ["fs"] }
-libdumpster = { version = "*", path = "../libdumpster/" }
+
+b64 = { version = "0.4", optional = true }
+axum = { version = "0.6", optional = true }
+tower-http = { version = "0.4", features = ["fs"], optional = true }
+libdumpster = { version = "*", path = "../libdumpster/", optional = true }

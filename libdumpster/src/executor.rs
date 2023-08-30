@@ -36,7 +36,6 @@ where
     pub async fn incoming(
         &self,
         class: &str,
-        data_name: &str,
         mut data: Vec<u8>,
     ) -> Option<String> {
         let class = self.classes.get(class).expect("That class does not exist.");
@@ -50,7 +49,7 @@ where
         for op in class.operations.iter() {
             match op {
                 Pipe::PipeOp(op) => {
-                    data = op.incoming(data_name, data)?;
+                    data = op.incoming(data)?;
                 }
                 Pipe::StorePipeOp(output_name) => {
                     self.fs

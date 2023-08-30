@@ -48,7 +48,7 @@ async fn api_upload_base64<FS: FileSystem + Send + Sync>(
             error: Some(ResError::InvalidBase64),
         });
     };
-    let Some(object_name) = state.exec.incoming(&req.class_name, "", data).await else {
+    let Some(object_name) = state.exec.incoming(&req.class_name, data).await else {
         return Json(ResUpload {
             object_name: None,
             error: Some(ResError::DataRejected),

@@ -29,7 +29,7 @@ impl ImageOperation {
 }
 
 impl Operation for ImageOperation {
-    fn incoming(&self, _: &str, bytes: Vec<u8>) -> Option<Vec<u8>> {
+    fn incoming(&self, bytes: Vec<u8>) -> Option<Vec<u8>> {
         //  TODO Add Image Limits.
         let mut image = Reader::new(Cursor::new(bytes))
             .with_guessed_format()

@@ -48,6 +48,7 @@ impl Operation for ImageOperation {
 }
 
 pub enum ImageOperationStep {
+    MaxSize(u32, u32),
     Resize(u32, u32),
     Blur(f32),
 }
@@ -55,6 +56,9 @@ pub enum ImageOperationStep {
 impl ImageOperationStep {
     pub fn run(&self, image: &mut DynamicImage) -> Option<()> {
         *image = match self {
+            ImageOperationStep::MaxSize(max_width, max_height) => (image.width() < *max_width
+                && image.height() < *max_height)
+                .then_some(image.clone())?,
             ImageOperationStep::Resize(width, height) => image.thumbnail(*width, *height),
             ImageOperationStep::Blur(sigma) => image.blur(*sigma),
         };

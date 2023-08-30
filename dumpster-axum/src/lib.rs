@@ -5,7 +5,7 @@ use axum::{
 };
 use b64::FromBase64;
 use libdumpster::{Executor, FileSystem};
-use std::{net::SocketAddr, path::Path, sync::Arc};
+use std::{net::SocketAddr, sync::Arc};
 use tower_http::services::ServeDir;
 
 mod api;
@@ -16,7 +16,7 @@ struct OurState<FS: FileSystem + Send + Sync> {
     exec: Executor<FS>,
 }
 
-pub async fn run_with_axum<FS>(exec: Executor<FS>, mount_dir: &Path, addr: SocketAddr)
+pub async fn run_with_axum<FS>(exec: Executor<FS>, mount_dir: &str, addr: SocketAddr)
 where
     FS: FileSystem + Send + Sync + 'static,
 {

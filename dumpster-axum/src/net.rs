@@ -22,6 +22,7 @@ where
     let app = Router::new()
         .route("/", get(get_hello_world))
         .route("/upload_base64", post(api_upload_base64))
+        .route("/upload_loose_base64", post(api_upload_base64))
         .nest_service("/get/", ServeDir::new(mount_dir))
         .with_state(Arc::clone(&state));
 
@@ -37,26 +38,49 @@ async fn get_hello_world() -> &'static str {
 
 async fn api_upload_base64<FS: FileSystem + Send + Sync>(
     State(state): State<Arc<OurState<FS>>>,
-    Json(req): Json<InUpload>,
-) -> Json<ResUpload> {
+    Json(req): Json<InUploadBase64>,
+) -> Json<ResUploadBase64> {
     let Ok(data) = req.base64_data.from_base64() else {
-        return Json(ResUpload {
+        return Json(ResUploadBase64 {
             object_name: None,
-            error: Some(ResError::InvalidBase64),
+            error: Some(UploadBase64Error::InvalidBase64),
         });
     };
     match state.exec.incoming(&req.class_name, data).await {
-        Ok(object_name) => Json(ResUpload {
+        Ok(object_name) => Json(ResUploadBase64 {
             object_name: Some(object_name),
             error: None,
         }),
-        Err(OperationReject::DataCorrupt) => Json(ResUpload {
+        Err(OperationReject::DataCorrupt) => Json(ResUploadBase64 {
             object_name: None,
-            error: Some(ResError::DataCorrupt),
+            error: Some(UploadBase64Error::DataCorrupt),
         }),
-        Err(OperationReject::DataConstraint) => Json(ResUpload {
+        Err(OperationReject::DataConstraint) => Json(ResUploadBase64 {
             object_name: None,
-            error: Some(ResError::DataConstraint),
+            error: Some(UploadBase64Error::DataConstraint),
+        }),
+    }
+}
+
+async fn api_upload_loose_base64<FS: FileSystem + Send + Sync>(
+    State(state): State<Arc<OurState<FS>>>,
+    Json(req): Json<InUploadLooseBase64>,
+) -> Json<ResUploadLooseBase64> {
+    let Ok(data) = req.base64_data.from_base64() else {
+        return Json(ResUploadLooseBase64 {
+            object_name: None,
+            error: Some(UploadBase64Error::InvalidBase64),
+        });
+    };
+    match state.exec.loose_incoming(&req.file_name, data).await {
+        Ok(object_name) => Json(ResUploadLooseBase64 {
+            object_name: Some(object_name),
+            error: None,
+        }),
+        Err(OperationReject::DataCorrupt) => unreachable!(),
+        Err(OperationReject::DataConstraint) => Json(ResUploadLooseBase64 {
+            object_name: None,
+            error: Some(UploadBase64Error::DataConstraint),
         }),
     }
 }

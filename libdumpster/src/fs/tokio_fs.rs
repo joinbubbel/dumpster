@@ -52,22 +52,4 @@ impl FileSystem for TokioFileSystem {
             }
         })
     }
-
-    async fn store_loose(
-        &self,
-        class_name: &str,
-        file_name: &str,
-        bytes: &[u8],
-    ) -> Result<(), FileSystemError> {
-        let mut dir = self.mount_point.clone();
-        dir.push(class_name);
-        dir.push(file_name);
-        fs::write(&dir, bytes).await.map_err(|e| {
-            if e.kind() == io::ErrorKind::NotFound {
-                FileSystemError::NotFound
-            } else {
-                FileSystemError::Internal(e.to_string())
-            }
-        })
-    }
 }

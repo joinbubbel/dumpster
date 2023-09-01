@@ -1,6 +1,6 @@
 use super::*;
 use rand::{distributions::Alphanumeric, prelude::*, rngs::OsRng};
-use std::{collections::HashMap, path::PathBuf, sync::Arc};
+use std::{collections::HashMap, sync::Arc};
 
 const OBJECT_TOKEN_LENGTH: usize = 32;
 
@@ -87,20 +87,12 @@ where
             };
         }
 
-        let data_path = PathBuf::from(data_name);
-        let ext = data_path
-            .extension()
-            .ok_or(OperationReject::DataCorrupt)?
-            .to_str()
-            .unwrap();
-        let file_path = format!("{}.{}", object_token, ext);
-
         self.fs
-            .store_loose(LOOSE_FILE_CLASS_NAME, &file_path, &data)
+            .store(LOOSE_FILE_CLASS_NAME, &object_token, data_name, &data)
             .await
             .expect("Failed to store data (loose).");
 
-        Ok(file_path)
+        Ok(format!("{}/{}", object_token, data_name))
     }
 }
 

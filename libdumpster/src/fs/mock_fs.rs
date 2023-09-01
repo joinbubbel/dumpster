@@ -4,7 +4,6 @@ use std::{collections::HashMap, sync::Mutex};
 #[derive(Default)]
 pub struct MockFileSystem {
     classes: Mutex<HashMap<String, Class>>,
-    loose_files: Mutex<HashMap<String, Vec<u8>>>,
 }
 
 #[derive(Default)]
@@ -59,18 +58,6 @@ impl FileSystem for MockFileSystem {
             .datas
             .get_mut(name)
             .unwrap() = bytes.to_vec();
-
-        Ok(())
-    }
-
-    async fn store_loose(
-        &self,
-        _: &str,
-        file_name: &str,
-        bytes: &[u8],
-    ) -> Result<(), FileSystemError> {
-        let mut loose_files = self.loose_files.lock().unwrap();
-        loose_files.insert(file_name.to_owned(), bytes.to_vec());
 
         Ok(())
     }

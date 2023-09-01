@@ -40,10 +40,4 @@ pub trait FileSystem {
         name: &str,
         bytes: &[u8],
     ) -> Result<(), FileSystemError>;
-    async fn store_loose(
-        &self,
-        class_name: &str,
-        file_name: &str,
-        bytes: &[u8],
-    ) -> Result<(), FileSystemError>;
 }

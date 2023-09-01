@@ -100,7 +100,7 @@ where
             .await
             .expect("Failed to store data (loose).");
 
-        Ok(object_token)
+        Ok(file_path)
     }
 }
 

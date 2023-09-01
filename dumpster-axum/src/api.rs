@@ -28,7 +28,7 @@ pub struct InUploadLooseBase64 {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResUploadLooseBase64 {
     pub object_name: Option<String>,
-    pub error: Option<UploadBase64Error>,
+    pub error: Option<UploadLooseBase64Error>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

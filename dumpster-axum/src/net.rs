@@ -22,7 +22,7 @@ where
     let app = Router::new()
         .route("/", get(get_hello_world))
         .route("/upload_base64", post(api_upload_base64))
-        .route("/upload_loose_base64", post(api_upload_base64))
+        .route("/upload_loose_base64", post(api_upload_loose_base64))
         .nest_service("/get/", ServeDir::new(mount_dir))
         .with_state(Arc::clone(&state));
 
@@ -69,7 +69,7 @@ async fn api_upload_loose_base64<FS: FileSystem + Send + Sync>(
     let Ok(data) = req.base64_data.from_base64() else {
         return Json(ResUploadLooseBase64 {
             object_name: None,
-            error: Some(UploadBase64Error::InvalidBase64),
+            error: Some(UploadLooseBase64Error::InvalidBase64),
         });
     };
     match state.exec.loose_incoming(&req.file_name, data).await {
@@ -80,7 +80,7 @@ async fn api_upload_loose_base64<FS: FileSystem + Send + Sync>(
         Err(OperationReject::DataCorrupt) => unreachable!(),
         Err(OperationReject::DataConstraint) => Json(ResUploadLooseBase64 {
             object_name: None,
-            error: Some(UploadBase64Error::DataConstraint),
+            error: Some(UploadLooseBase64Error::DataConstraint),
         }),
     }
 }

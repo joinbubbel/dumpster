@@ -29,21 +29,23 @@ impl ImageOperation {
 }
 
 impl Operation for ImageOperation {
-    fn incoming(&self, bytes: Vec<u8>) -> Option<Vec<u8>> {
+    fn incoming(&self, bytes: Vec<u8>) -> Result<Vec<u8>, OperationReject> {
         //  TODO Add Image Limits.
         let mut image = Reader::new(Cursor::new(bytes))
             .with_guessed_format()
-            .ok()?
+            .map_err(|_| OperationReject::DataCorrupt)?
             .decode()
-            .ok()?;
+            .map_err(|_| OperationReject::DataCorrupt)?;
 
         for step in &self.steps {
             step.run(&mut image)?;
         }
 
         let mut buffer = Cursor::new(vec![]);
-        image.write_to(&mut buffer, self.output_format).ok()?;
-        Some(buffer.into_inner())
+        image
+            .write_to(&mut buffer, self.output_format)
+            .map_err(|_| OperationReject::DataConstraint)?;
+        Ok(buffer.into_inner())
     }
 }
 
@@ -54,15 +56,16 @@ pub enum ImageOperationStep {
 }
 
 impl ImageOperationStep {
-    pub fn run(&self, image: &mut DynamicImage) -> Option<()> {
+    pub fn run(&self, image: &mut DynamicImage) -> Result<(), OperationReject> {
         *image = match self {
             ImageOperationStep::MaxSize(max_width, max_height) => (image.width() < *max_width
                 && image.height() < *max_height)
-                .then_some(image.clone())?,
+                .then_some(image.clone())
+                .ok_or(OperationReject::DataConstraint)?,
             ImageOperationStep::Resize(width, height) => image.thumbnail(*width, *height),
             ImageOperationStep::Blur(sigma) => image.blur(*sigma),
         };
 
-        Some(())
+        Ok(())
     }
 }

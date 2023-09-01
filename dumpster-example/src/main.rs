@@ -1,7 +1,7 @@
 use dumpster_axum::run_with_axum;
 use libdumpster::{
-    tokio_fs::TokioFileSystem, Class, Executor, FileSystem, ImageFormat,
-    ImageOperation, ImageOperationStep,
+    tokio_fs::TokioFileSystem, Class, Executor, FileSystem, ImageFormat, ImageOperation,
+    ImageOperationStep,
 };
 use std::{env, fs, sync::Arc};
 
@@ -20,6 +20,6 @@ async fn main() {
         .store("image.jpeg")
         .build();
 
-    let executor = Executor::new(fs, &[profile_picture]).await;
+    let executor = Executor::new(fs, &[profile_picture], &[]).await;
     run_with_axum(executor, &mount_dir, "0.0.0.0:3000".parse().unwrap()).await;
 }

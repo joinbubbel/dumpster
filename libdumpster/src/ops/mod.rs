@@ -18,5 +18,10 @@ mod image;
 pub use self::image::*;
 
 pub trait Operation {
-    fn incoming(&self, bytes: Vec<u8>) -> Option<Vec<u8>>;
+    fn incoming(&self, bytes: Vec<u8>) -> Result<Vec<u8>, OperationReject>;
+}
+
+pub enum OperationReject {
+    DataCorrupt,
+    DataConstraint,
 }

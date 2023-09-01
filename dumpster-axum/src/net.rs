@@ -5,7 +5,7 @@ use axum::{
     Router,
 };
 use b64::FromBase64;
-use libdumpster::{Executor, FileSystem};
+use libdumpster::{Executor, FileSystem, OperationReject};
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::services::ServeDir;
 
@@ -45,15 +45,18 @@ async fn api_upload_base64<FS: FileSystem + Send + Sync>(
             error: Some(ResError::InvalidBase64),
         });
     };
-    let Some(object_name) = state.exec.incoming(&req.class_name, data).await else {
-        return Json(ResUpload {
+    match state.exec.incoming(&req.class_name, data).await {
+        Ok(object_name) => Json(ResUpload {
+            object_name: Some(object_name),
+            error: None,
+        }),
+        Err(OperationReject::DataCorrupt) => Json(ResUpload {
             object_name: None,
-            error: Some(ResError::DataRejected),
-        });
-    };
-
-    Json(ResUpload {
-        object_name: Some(object_name),
-        error: None,
-    })
+            error: Some(ResError::DataCorrupt),
+        }),
+        Err(OperationReject::DataConstraint) => Json(ResUpload {
+            object_name: None,
+            error: Some(ResError::DataConstraint),
+        }),
+    }
 }

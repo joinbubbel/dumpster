@@ -14,7 +14,7 @@ pub struct ResUpload {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ResError {
-    DataRejected,
+    DataCorrupt,
+    DataConstraint,
     InvalidBase64,
 }
-

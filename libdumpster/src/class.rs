@@ -15,6 +15,8 @@ pub struct Class {
 
 impl Class {
     pub fn builder(name: &str) -> Self {
+        assert_ne!(name, LOOSE_FILE_CLASS_NAME);
+
         Class {
             name: name.to_owned(),
             operations: vec![],

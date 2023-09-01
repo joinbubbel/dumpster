@@ -33,17 +33,17 @@ pub trait FileSystem {
         Self: Sized;
     async fn register_class(&self, name: &str) -> Result<(), FileSystemError>;
     async fn new_object(&self, class_name: &str, object_name: &str) -> Result<(), FileSystemError>;
-    async fn load(
-        &self,
-        class_name: &str,
-        object_name: &str,
-        data_name: &str,
-    ) -> Result<Vec<u8>, FileSystemError>;
     async fn store(
         &self,
         class_name: &str,
         object_name: &str,
         name: &str,
+        bytes: &[u8],
+    ) -> Result<(), FileSystemError>;
+    async fn store_loose(
+        &self,
+        class_name: &str,
+        file_name: &str,
         bytes: &[u8],
     ) -> Result<(), FileSystemError>;
 }

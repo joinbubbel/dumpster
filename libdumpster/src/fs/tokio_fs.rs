@@ -33,25 +33,6 @@ impl FileSystem for TokioFileSystem {
             .map_err(|e| FileSystemError::Internal(e.to_string()))
     }
 
-    async fn load(
-        &self,
-        class_name: &str,
-        object_name: &str,
-        data_name: &str,
-    ) -> Result<Vec<u8>, FileSystemError> {
-        let mut dir = self.mount_point.clone();
-        dir.push(class_name);
-        dir.push(object_name);
-        dir.push(data_name);
-        fs::read(&dir).await.map_err(|e| {
-            if e.kind() == io::ErrorKind::NotFound {
-                FileSystemError::NotFound
-            } else {
-                FileSystemError::Internal(e.to_string())
-            }
-        })
-    }
-
     async fn store(
         &self,
         class_name: &str,
@@ -63,6 +44,24 @@ impl FileSystem for TokioFileSystem {
         dir.push(class_name);
         dir.push(object_name);
         dir.push(name);
+        fs::write(&dir, bytes).await.map_err(|e| {
+            if e.kind() == io::ErrorKind::NotFound {
+                FileSystemError::NotFound
+            } else {
+                FileSystemError::Internal(e.to_string())
+            }
+        })
+    }
+
+    async fn store_loose(
+        &self,
+        class_name: &str,
+        file_name: &str,
+        bytes: &[u8],
+    ) -> Result<(), FileSystemError> {
+        let mut dir = self.mount_point.clone();
+        dir.push(class_name);
+        dir.push(file_name);
         fs::write(&dir, bytes).await.map_err(|e| {
             if e.kind() == io::ErrorKind::NotFound {
                 FileSystemError::NotFound

@@ -13,9 +13,9 @@
 //! ```
 //!
 
-mod incoming;
+mod image;
 
-pub use incoming::*;
+pub use self::image::*;
 
 pub trait Operation {
     fn incoming(&self, bytes: Vec<u8>) -> Option<Vec<u8>>;

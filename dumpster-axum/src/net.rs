@@ -55,13 +55,13 @@ async fn api_upload_base64<FS: FileSystem + Send + Sync>(
             object_name: Some(object_name),
             error: None,
         }),
-        Err(OperationReject::DataCorrupt) => Json(ResUploadBase64 {
+        Err(OperationReject::DataCorrupt { reason }) => Json(ResUploadBase64 {
             object_name: None,
-            error: Some(UploadBase64Error::DataCorrupt),
+            error: Some(UploadBase64Error::DataCorrupt { reason }),
         }),
-        Err(OperationReject::DataConstraint) => Json(ResUploadBase64 {
+        Err(OperationReject::DataConstraint { reason }) => Json(ResUploadBase64 {
             object_name: None,
-            error: Some(UploadBase64Error::DataConstraint),
+            error: Some(UploadBase64Error::DataConstraint { reason }),
         }),
     }
 }
@@ -85,10 +85,10 @@ async fn api_upload_loose_base64<FS: FileSystem + Send + Sync>(
             object_name: Some(object_name),
             error: None,
         }),
-        Err(OperationReject::DataCorrupt) => unreachable!(),
-        Err(OperationReject::DataConstraint) => Json(ResUploadLooseBase64 {
+        Err(OperationReject::DataCorrupt { .. }) => unreachable!(),
+        Err(OperationReject::DataConstraint { reason }) => Json(ResUploadLooseBase64 {
             object_name: None,
-            error: Some(UploadLooseBase64Error::DataConstraint),
+            error: Some(UploadLooseBase64Error::DataConstraint { reason }),
         }),
     }
 }

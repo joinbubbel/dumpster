@@ -33,9 +33,13 @@ impl Operation for ImageOperation {
         //  TODO Add Image Limits.
         let mut image = Reader::new(Cursor::new(bytes))
             .with_guessed_format()
-            .map_err(|_| OperationReject::DataCorrupt)?
+            .map_err(|e| OperationReject::DataCorrupt {
+                reason: e.to_string(),
+            })?
             .decode()
-            .map_err(|_| OperationReject::DataCorrupt)?;
+            .map_err(|e| OperationReject::DataCorrupt {
+                reason: e.to_string(),
+            })?;
 
         for step in &self.steps {
             step.run(&mut image)?;
@@ -44,7 +48,9 @@ impl Operation for ImageOperation {
         let mut buffer = Cursor::new(vec![]);
         image
             .write_to(&mut buffer, self.output_format)
-            .map_err(|_| OperationReject::DataConstraint)?;
+            .map_err(|e| OperationReject::DataConstraint {
+                reason: e.to_string(),
+            })?;
         Ok(buffer.into_inner())
     }
 }
@@ -61,7 +67,9 @@ impl ImageOperationStep {
             ImageOperationStep::MaxSize(max_width, max_height) => (image.width() < *max_width
                 && image.height() < *max_height)
                 .then_some(image.clone())
-                .ok_or(OperationReject::DataConstraint)?,
+                .ok_or(OperationReject::DataConstraint {
+                    reason: "Max Size Exceeded".to_owned(),
+                })?,
             ImageOperationStep::Resize(width, height) => image.thumbnail(*width, *height),
             ImageOperationStep::Blur(sigma) => image.blur(*sigma),
         };

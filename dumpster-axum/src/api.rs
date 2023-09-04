@@ -14,8 +14,8 @@ pub struct ResUploadBase64 {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum UploadBase64Error {
-    DataCorrupt,
-    DataConstraint,
+    DataCorrupt { reason: String },
+    DataConstraint { reason: String },
     InvalidBase64,
 }
 
@@ -33,6 +33,6 @@ pub struct ResUploadLooseBase64 {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum UploadLooseBase64Error {
-    DataConstraint,
+    DataConstraint { reason: String },
     InvalidBase64,
 }

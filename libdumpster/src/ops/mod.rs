@@ -22,6 +22,6 @@ pub trait Operation {
 }
 
 pub enum OperationReject {
-    DataCorrupt,
-    DataConstraint,
+    DataCorrupt { reason: String },
+    DataConstraint { reason: String },
 }

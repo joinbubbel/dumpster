@@ -82,8 +82,10 @@ where
             //  TODO I don't like this clone.
             data = match op.incoming(data.clone()) {
                 Ok(data) => data,
-                Err(OperationReject::DataCorrupt) => data,
-                Err(OperationReject::DataConstraint) => Err(OperationReject::DataConstraint)?,
+                Err(OperationReject::DataCorrupt { .. }) => data,
+                Err(OperationReject::DataConstraint { reason }) => {
+                    Err(OperationReject::DataConstraint { reason })?
+                }
             };
         }
 

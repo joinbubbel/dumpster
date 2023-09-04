@@ -40,7 +40,11 @@ async fn api_upload_base64<FS: FileSystem + Send + Sync>(
     State(state): State<Arc<OurState<FS>>>,
     Json(req): Json<InUploadBase64>,
 ) -> Json<ResUploadBase64> {
-    let Ok(data) = req.base64_data.from_base64() else {
+    let (_, base64_data) = req
+        .base64_data
+        .split_once(',')
+        .unwrap_or(("", &req.base64_data));
+    let Ok(data) = base64_data.from_base64() else {
         return Json(ResUploadBase64 {
             object_name: None,
             error: Some(UploadBase64Error::InvalidBase64),
@@ -66,7 +70,11 @@ async fn api_upload_loose_base64<FS: FileSystem + Send + Sync>(
     State(state): State<Arc<OurState<FS>>>,
     Json(req): Json<InUploadLooseBase64>,
 ) -> Json<ResUploadLooseBase64> {
-    let Ok(data) = req.base64_data.from_base64() else {
+    let (_, base64_data) = req
+        .base64_data
+        .split_once(',')
+        .unwrap_or(("", &req.base64_data));
+    let Ok(data) = base64_data.from_base64() else {
         return Json(ResUploadLooseBase64 {
             object_name: None,
             error: Some(UploadLooseBase64Error::InvalidBase64),
